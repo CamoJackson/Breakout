@@ -5,7 +5,7 @@ import acm.util.*;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
-
+// Jackson Borneman
 public class Breakout_Shell extends GraphicsProgram 
 {
   	// Display settings   
@@ -66,14 +66,11 @@ public class Breakout_Shell extends GraphicsProgram
    public void createBricks()                   // createBricks method -- called from the init method
    {
    	//make the bricks
-      for(int r = 0; r < /* how many rows of bricks */; r++)
+      for(int r = 0; r < NBRICK_ROWS; r++)
       {
-         for(int c = 0; c < /* how many bricks in each row */; c++)
+         for(int c = 0; c < NBRICKS_PER_ROW; c++)
          {
-            Brick brick = new Brick( /* x arg */, 
-               						    /* y arg */, 
-               							 /* width arg */, 
-               							 /* height arg */	);
+            Brick brick = new Brick(BRICK_SEP + C * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HIGHT), BRICK_WIDTH, BRICL_HIGHT,);
             	
          	/********************************************
             * First, you need to enable the new brick
@@ -132,7 +129,8 @@ public class Breakout_Shell extends GraphicsProgram
    public void startTheBall()                   // startTheBall method -- called from the run method
    {
    	
-   	/******************************************
+   	
+      /******************************************
       *                       				  
       * create a random double between 1 and 3
       * (between 1.0 and 2.99) for dx         
