@@ -43,22 +43,19 @@ public class Breakout_Shell extends GraphicsProgram
    // Label variables
 	
    
-   public static void main(String[] args)       // main method -- called when the program is run
-   {
+   public static void main(String[] args){       // main method -- called when the program is run
       String[] sizeArgs = { "width=" + WIDTH, "height=" + HEIGHT };
       new Breakout_Shell().start(sizeArgs);
    }
 	
-   public void init()                          	// init method -- automatically called on startup
-   {
+   public void init(){                          	// init method -- automatically called on startup
       createBricks();                           // create the bricks
       createPaddle();                           // create the paddle
       createBall();                             // create the ball
                                                 // add a mouse listener
    }
    
-   public void run()                            // run method -- automatically called after init
-   {
+   public void run(){                            // run method -- automatically called after init{
       startTheBall();
       playBall();
    }
@@ -68,10 +65,8 @@ public class Breakout_Shell extends GraphicsProgram
       int colNum = 0;
       int colSwitch = 1;
    	//make the bricks
-      for(int r = 0; r < NBRICK_ROWS; r++)
-      {
-         for(int c = 0; c < NBRICKS_PER_ROW; c++)
-         {
+      for(int r = 0; r < NBRICK_ROWS; r++){
+         for(int c = 0; c < NBRICKS_PER_ROW; c++){
             Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
             if(colSwitch > 5){
                colSwitch = 1;
@@ -91,33 +86,28 @@ public class Breakout_Shell extends GraphicsProgram
             }
             if(colNum >= 2){
                colNum = 0;
-               colSwitch = ColSwitch + 1;
+               colSwitch = colSwitch + 1;
             } 
-                
-            gc.add(brick);
+                // add brick to screen
          }
       }
    }
 
-   class Brick extends GRect                    // Brick class -- class for all brick objects
-   {
+   class Brick extends GRect{                   // Brick class -- class for all brick objects
       // add instance variables here as needed
       
       /** Constructor: a new brick with width w and height h */
-      public Brick(double w, double h)
-      {
+      public Brick(double w, double h){
          super(w,h);
       }
     
       /** Constructor: a new brick at (x,y) with width w and height h */
-      public Brick(double x, double y, double w, double h)
-      {
+      public Brick(double x, double y, double w, double h){
          super(x,y,w,h);
       }    
    }
 
-   public void createPaddle()                   // createPaddle method -- called from the init method
-   {
+   public void createPaddle(){                   // createPaddle method -- called from the init method
    	/******************************************
       *                       				  
    	* write code to create and add the paddle
@@ -125,8 +115,7 @@ public class Breakout_Shell extends GraphicsProgram
    	*******************************************/
    }
 	
-   public void createBall()                     // createBall method -- called from the init method
-   {
+   public void createBall(){                    // createBall method -- called from the init method
    	/******************************************
       *                       				  
    	* write code to create and add the ball 
@@ -134,8 +123,7 @@ public class Breakout_Shell extends GraphicsProgram
    	*******************************************/
    }
 		
-   public void startTheBall()                   // startTheBall method -- called from the run method
-   {
+   public void startTheBall(){                   // startTheBall method -- called from the run method
    	
    	
       /******************************************
@@ -152,10 +140,8 @@ public class Breakout_Shell extends GraphicsProgram
          	
    }
 	
-   public void playBall()           	      // playBall method -- called from the run method
-   {
-      while( lives > 0 )                     // game loop - play continues as long as player has lives left
-      {
+   public void playBall(){           	      // playBall method -- called from the run method
+      while( lives > 0 ){                     // game loop - play continues as long as player has lives left
       	//move the ball
          ball.move(dx, dy);
       	//pause
@@ -201,8 +187,8 @@ public class Breakout_Shell extends GraphicsProgram
       }
    }
 	
-   private GObject getCollidingObject()            // getCollidingObject -- called from the playBall method
-   {  // discovers and returns the object that the ball collided with
+   private GObject getCollidingObject(){            // getCollidingObject -- called from the playBall method
+   // discovers and returns the object that the ball collided with
    
       if(getElementAt(ball.getX(), ball.getY()) != null)
          return getElementAt(ball.getX(), ball.getY());
@@ -216,32 +202,7 @@ public class Breakout_Shell extends GraphicsProgram
          return null;
    }
    
-   public void mouseMoved(MouseEvent e)         // mouseMoved method -- called by the mouseListener
-   {  // triggered whenever the mouse is moved anywhere within the boundaries of the run window
-   
-   	//only move the paddle every 5th mouse event, otherwise the play slows every time the mouse moves
-      if(toggle == 5)
-      {
-      	/******************************************
-         *                       				  
-      	* write code to move the paddle so that
-         * it lines up with the current position 
-         * of the mouse 
-         *
-         * make sure the paddle stops at the left
-         * and right walls
-      	*                      				  
-      	*******************************************/
-      	
-      	//reset toggle to 1 
-         toggle = 1;
-      }
-      else
-      {
-      	//increment toggle by 1
-      	//(when toggle gets to 5 the code will move the paddle 
-      	// and reset toggle back to 1)
-         toggle++;
-      }
+   public void mouseMoved(MouseEvent e){
+      e.getX(); //gets the mouses x position
    }
 }
