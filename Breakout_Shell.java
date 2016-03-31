@@ -1,10 +1,11 @@
 import acm.graphics.*;
 import acm.program.*;
 import acm.util.*;
-
+import javax.swing.*;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 // Jackson Borneman
 public class Breakout_Shell extends GraphicsProgram 
 {
@@ -41,6 +42,8 @@ public class Breakout_Shell extends GraphicsProgram
    private int toggle = 0;                         // used for mouse events (only moves the paddle every 5th mouse move)
    
    // Label variables
+   private GRect paddle;
+   private GOval ball;
 	
    
    public static void main(String[] args){       // main method -- called when the program is run
@@ -52,7 +55,7 @@ public class Breakout_Shell extends GraphicsProgram
       createBricks();                           // create the bricks
       createPaddle();                           // create the paddle
       createBall();                             // create the ball
-                                                // add a mouse listener
+      addMouseListeners();                                         // add a mouse listener
    }
    
    public void run(){                            // run method -- automatically called after init{
@@ -62,33 +65,40 @@ public class Breakout_Shell extends GraphicsProgram
 		
    public void createBricks()                   // createBricks method -- called from the init method
    {
-      int colNum = 0;
-      int colSwitch = 1;
    	//make the bricks
       for(int r = 0; r < NBRICK_ROWS; r++){
          for(int c = 0; c < NBRICKS_PER_ROW; c++){
-            Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
-            if(colSwitch > 5){
-               colSwitch = 1;
-            }
-            
-            switch(colSwitch){      
+            Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + r * (BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
+               
+            brick.setFilled(true);
+            switch(r){      
+               case 0:
                case 1:
                   brick.setFillColor(Color.RED);
+                  brick.setColor(Color.RED);
+                  break;
                case 2:
-                  brick.setFillColor(Color.ORANGE);
                case 3:
-                  brick.setFillColor(Color.YELLOW);
+                  brick.setFillColor(Color.ORANGE);
+                  brick.setColor(Color.ORANGE);
+                  break;
                case 4:
-                  brick.setFillColor(Color.GREEN);
                case 5:
+                  brick.setFillColor(Color.YELLOW);
+                  brick.setColor(Color.YELLOW);
+                  break;
+               case 6:
+               case 7:
+                  brick.setFillColor(Color.GREEN);
+                  brick.setColor(Color.GREEN);
+                  break;
+               case 8:
+               case 9:
                   brick.setFillColor(Color.CYAN);
+                  brick.setColor(Color.CYAN);
+                  break;
             }
-            if(colNum >= 2){
-               colNum = 0;
-               colSwitch = colSwitch + 1;
-            } 
-                // add brick to screen
+            add(brick); 
          }
       }
    }
@@ -108,19 +118,14 @@ public class Breakout_Shell extends GraphicsProgram
    }
 
    public void createPaddle(){                   // createPaddle method -- called from the init method
-   	/******************************************
-      *                       				  
-   	* write code to create and add the paddle
-   	*                      				  
-   	*******************************************/
+   	paddle = new GRect((WIDTH / 2) - (PADDLE_WIDTH / 2), HEIGHT - PADDLE_Y_OFFSET, PADDLE_WIDTH, PADDLE_HEIGHT);
+      paddle.setFilled(true);
+      paddle.setFillColor(Color.MAGENTA);
+      paddle.setColor(Color.BLACK);
+      add(paddle);
    }
-	
    public void createBall(){                    // createBall method -- called from the init method
-   	/******************************************
-      *                       				  
-   	* write code to create and add the ball 
-   	*                      				  
-   	*******************************************/
+   	ball = new GOval()
    }
 		
    public void startTheBall(){                   // startTheBall method -- called from the run method
@@ -203,6 +208,6 @@ public class Breakout_Shell extends GraphicsProgram
    }
    
    public void mouseMoved(MouseEvent e){
-      e.getX(); //gets the mouses x position
+      paddle.setLocation(e.getX(),HEIGHT - PADDLE_Y_OFFSET); //gets the mouses x position
    }
 }
