@@ -73,23 +73,28 @@ public class Breakout_Shell extends GraphicsProgram
          for(int c = 0; c < NBRICKS_PER_ROW; c++)
          {
             Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
+            if(colSwitch > 5){
+               colSwitch = 1;
+            }
+            
             switch(colSwitch){      
-               case 1: //RGB 163 30 10  Red
-               brick.setFillColor(new Color(163,30,10));
-               case 2: //RGB 193 132 10 Orange
-               brick.setFillColor(new Color(193,132,10));
-               case 3: //RGB 10 135 51  Green
-               brick.setFillColor(new Color(10,135,51));
-               case 4: //RGB 188 188 40 Yellow
-               brick.setFillColor(new Color(188,188,40));
-               case 5: //RGB 10 133 194 Blue
-               brick.setFillColor(new Color(10,133,194));
+               case 1:
+                  brick.setFillColor(Color.RED);
+               case 2:
+                  brick.setFillColor(Color.ORANGE);
+               case 3:
+                  brick.setFillColor(Color.YELLOW);
+               case 4:
+                  brick.setFillColor(Color.GREEN);
+               case 5:
+                  brick.setFillColor(Color.CYAN);
             }
             if(colNum >= 2){
                colNum = 0;
                colSwitch = ColSwitch + 1;
-            }     
-         	gc.add(brick);
+            } 
+                
+            gc.add(brick);
          }
       }
    }
