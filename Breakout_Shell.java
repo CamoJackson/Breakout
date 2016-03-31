@@ -19,7 +19,7 @@ public class Breakout_Shell extends GraphicsProgram
 	
   	// Brick settings
    private static final int NBRICKS_PER_ROW = 10;  // number of bricks per row
-   private static final int NBRICK_ROWS = 8;      // number of rows of bricks
+   private static final int NBRICK_ROWS = 10;      // number of rows of bricks
    private static final int BRICK_SEP = 4;         // separation between bricks both horizontally and vertically
    private static final int BRICK_WIDTH = WIDTH / NBRICKS_PER_ROW - BRICK_SEP;   // width of each brick (based on the display dimensions)
    private static final int BRICK_HEIGHT = 8;      // height of brick
@@ -30,7 +30,6 @@ public class Breakout_Shell extends GraphicsProgram
    
    // Game settings
    private static final int NTURNS = 3;            // number of turns
-   private static final int NBRICK_COL = NBRICK_ROWS / 4; //number of brick rows that get the same color
    
 	// Game Play variables
                               // paddle - based on ACM GRect object
@@ -66,36 +65,31 @@ public class Breakout_Shell extends GraphicsProgram
 		
    public void createBricks()                   // createBricks method -- called from the init method
    {
-      private int colornum = 0;
+      int colNum = 0;
+      int colSwitch = 1;
    	//make the bricks
       for(int r = 0; r < NBRICK_ROWS; r++)
       {
          for(int c = 0; c < NBRICKS_PER_ROW; c++)
          {
             Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
-            switch(colornum){      
+            switch(colSwitch){      
                case 1: //RGB 163 30 10  Red
+               brick.setFillColor(new Color(163,30,10));
                case 2: //RGB 193 132 10 Orange
+               brick.setFillColor(new Color(193,132,10));
                case 3: //RGB 10 135 51  Green
+               brick.setFillColor(new Color(10,135,51));
                case 4: //RGB 188 188 40 Yellow
+               brick.setFillColor(new Color(188,188,40));
+               case 5: //RGB 10 133 194 Blue
+               brick.setFillColor(new Color(10,133,194));
             }
-            if(r % 4 == NBRICK_COL)
-               colorNum = colorNum + 1;
-         
-         	/********************************************
-            * First, you need to enable the new brick
-            * to be filled with color                      				  
-            *
-         	* Next, write code to correctly color the
-            * bricks based on what row they are in
-            *
-            * Hint: use a switch statement which switches
-            *       off of the row number 
-         	*
-            * Finally, you need to add the brick to the
-            * canvas
-            *
-         	*********************************************/
+            if(colNum >= 2){
+               colNum = 0;
+               colSwitch = ColSwitch + 1;
+            }     
+         	gc.add(brick);
          }
       }
    }
@@ -107,15 +101,14 @@ public class Breakout_Shell extends GraphicsProgram
       /** Constructor: a new brick with width w and height h */
       public Brick(double w, double h)
       {
-         // code to call the 2-arg constructor from the superclass
+         super(w,h);
       }
     
       /** Constructor: a new brick at (x,y) with width w and height h */
       public Brick(double x, double y, double w, double h)
       {
-         // code to call the 4-arg constructor from the superclass
-      }
-   
+         super(x,y,w,h);
+      }    
    }
 
    public void createPaddle()                   // createPaddle method -- called from the init method
