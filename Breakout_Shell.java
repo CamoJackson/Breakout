@@ -19,7 +19,7 @@ public class Breakout_Shell extends GraphicsProgram
 	
   	// Brick settings
    private static final int NBRICKS_PER_ROW = 10;  // number of bricks per row
-   private static final int NBRICK_ROWS = 10;      // number of rows of bricks
+   private static final int NBRICK_ROWS = 8;      // number of rows of bricks
    private static final int BRICK_SEP = 4;         // separation between bricks both horizontally and vertically
    private static final int BRICK_WIDTH = WIDTH / NBRICKS_PER_ROW - BRICK_SEP;   // width of each brick (based on the display dimensions)
    private static final int BRICK_HEIGHT = 8;      // height of brick
@@ -30,6 +30,7 @@ public class Breakout_Shell extends GraphicsProgram
    
    // Game settings
    private static final int NTURNS = 3;            // number of turns
+   private static final int NBRICK_COL = NBRICK_ROWS / 4; //number of brick rows that get the same color
    
 	// Game Play variables
                               // paddle - based on ACM GRect object
@@ -59,19 +60,28 @@ public class Breakout_Shell extends GraphicsProgram
    
    public void run()                            // run method -- automatically called after init
    {
-   	startTheBall();
-   	playBall();
+      startTheBall();
+      playBall();
    }
 		
    public void createBricks()                   // createBricks method -- called from the init method
    {
+      private int colornum = 0;
    	//make the bricks
       for(int r = 0; r < NBRICK_ROWS; r++)
       {
          for(int c = 0; c < NBRICKS_PER_ROW; c++)
          {
-            Brick brick = new Brick(BRICK_SEP + C * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HIGHT), BRICK_WIDTH, BRICL_HIGHT,);
-            	
+            Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + c*(BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
+            switch(colornum){      
+               case 1: //RGB 163 30 10  Red
+               case 2: //RGB 193 132 10 Orange
+               case 3: //RGB 10 135 51  Green
+               case 4: //RGB 188 188 40 Yellow
+            }
+            if(r % 4 == NBRICK_COL)
+               colorNum = colorNum + 1;
+         
          	/********************************************
             * First, you need to enable the new brick
             * to be filled with color                      				  
