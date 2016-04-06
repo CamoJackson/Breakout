@@ -27,7 +27,7 @@ public class Breakout_Shell extends GraphicsProgram
    private static final int BRICK_Y_OFFSET = 70;   // offset of the top brick row from top
 
 	// Ball settings
-   private static final int BALL_RADIUS = 6;       // radius of ball in pixels
+   private static final int BALL_RADIUS = 6;       // radius of ball in pixel
    
    // Game settings
    private static final int NTURNS = 3;            // number of turns
@@ -36,7 +36,7 @@ public class Breakout_Shell extends GraphicsProgram
                               // paddle - based on ACM GRect object
                               // ball - based on ACM GOval object
    private double dx, dy;                          // ball displacement in both directions (x-direction, and y-direction)
-   private int lives;                              // number of lives left in game
+   private int lives = 3;                              // number of lives left in game
    private int nBricks = NBRICKS_PER_ROW * NBRICK_ROWS;  // total number of bricks on game board at start of game
    private int points;                             // number of points scored
    private int toggle = 0;                         // used for mouse events (only moves the paddle every 5th mouse move)
@@ -44,6 +44,9 @@ public class Breakout_Shell extends GraphicsProgram
    // Label variables
    private GRect paddle;
    private GOval ball;
+   private boolean gameRun = false;
+   private GLabel startLabel,gameOver;
+   private Font Algerian = new Font("Algerian", BOLD, 50);
 	
    
    public static void main(String[] args){       // main method -- called when the program is run
@@ -55,10 +58,18 @@ public class Breakout_Shell extends GraphicsProgram
       createBricks();                           // create the bricks
       createPaddle();                           // create the paddle
       createBall();                             // create the ball
-      addMouseListeners();                                         // add a mouse listener
+      
+      startLabel = new GLabel("Press Space to Start!", 30, HEIGHT/4*3);
+      startLabel.setColor(Color.BLACK);
+      gameOver = new GLabel("Game Over",30, HEIGHT/2);
+      gameOver.setFont(Algerian);
+      gameOver.setColor(Color.RED);
+      
+      addMouseListeners();
+      addKeyListeners();                                         // add a mouse listener
    }
    
-   public void run(){                            // run method -- automatically called after init{
+   public void run(){                            // run method -- automatically called after init
       startTheBall();
       playBall();
    }
@@ -118,19 +129,32 @@ public class Breakout_Shell extends GraphicsProgram
    }
 
    public void createPaddle(){                   // createPaddle method -- called from the init method
-   	paddle = new GRect((WIDTH / 2) - (PADDLE_WIDTH / 2), HEIGHT - PADDLE_Y_OFFSET, PADDLE_WIDTH, PADDLE_HEIGHT);
+      paddle = new GRect((WIDTH / 2) - (PADDLE_WIDTH / 2), HEIGHT - PADDLE_Y_OFFSET, PADDLE_WIDTH, PADDLE_HEIGHT);
       paddle.setFilled(true);
       paddle.setFillColor(Color.MAGENTA);
       paddle.setColor(Color.BLACK);
       add(paddle);
    }
    public void createBall(){                    // createBall method -- called from the init method
-   	ball = new GOval()
+      ball = new ball();
+      ball.setFilled(true);
+      ball.setFillColor(Color.BLACK);
+      ball.setColor(Color.BLACK);
+      add(ball);
    }
-		
+   class ball extends GOval{
+      public ball(){
+         super(paddle.getX() + (PADDLE_WIDTH / 2), paddle.getY() - (BALL_RADIUS * 2) - 5,BALL_RADIUS * 2, BALL_RADIUS * 2);
+      }
+      public void move(int x,int y){
+         setLocation(getX() + x,getY() + y);
+      }
+   }
    public void startTheBall(){                   // startTheBall method -- called from the run method
    	
-   	
+      dx = Math.random() * 1 + 1;
+      dy = 2;
+      
       /******************************************
       *                       				  
       * create a random double between 1 and 3
@@ -147,49 +171,67 @@ public class Breakout_Shell extends GraphicsProgram
 	
    public void playBall(){           	      // playBall method -- called from the run method
       while( lives > 0 ){                     // game loop - play continues as long as player has lives left
-      	//move the ball
-         ball.move(dx, dy);
-      	//pause
-         pause(1);
-      	
-      	//check for contact along the outer walls
-      	
-      	/**********************************************
-        	*
-        	* if ball contacts the ceiling,	  
-        	* reverse the y velocity 				      
-        	*                      				      
-        	* otherwise, if ball contacts the left wall, 
-        	* reverse the x velocity 				      
-        	*                      				      
-        	* otherwise, if ball contacts the right wall,
-        	* reverse the x velocity 				      
-        	* 
+         if(gameRun){
+         //move the ball
+            ball.move(dx, dy);
+         //pause
+            pause(4);
+         
+         //check for contact along the outer walls
+            if(ball.getX() <= 0 || ball.getX() >= WIDTH - BALL_RADIUS * 2){
+               dx = -dx;
+            }
+            if(ball.getY() <= 0){
+               dy = -dy;
+            }
+            if(ball.getY() >= HEIGHT - PADDLE_Y_OFFSET){
+               lives = lives - 1;
+               gameRun = false;
+               paddle.setLocation((WIDTH / 2) - (PADDLE_WIDTH / 2), HEIGHT - PADDLE_Y_OFFSET);
+               ball.setLocation(paddle.getX() + (PADDLE_WIDTH / 2), paddle.getY() - (BALL_RADIUS * 2) - 5);
+            }
+         /**********************************************
+         *
+         * if ball contacts the ceiling,	  
+         * reverse the y velocity 				      
+         *                      				      
+         * otherwise, if ball contacts the left wall, 
+         * reverse the x velocity 				      
+         *                      				      
+         * otherwise, if ball contacts the right wall,
+         * reverse the x velocity 				      
+         * 
          * otherwise, if ball gets past the paddle,
          * turn is over; either go on to next turn or
          * end game if there are no lives left 				      
          *           				      
-        	**********************************************/
-      
-      	
-      	//check for collisions with bricks or paddle
-         GObject collider = getCollidingObject();
-      	
-      	//if the ball collided with the paddle 
-         if(collider == paddle)
-         {
-         	//reverse the y velocity
-            dy = -dy;
+         **********************************************/
+         
+         
+         //check for collisions with bricks or paddle
+            GObject collider = getCollidingObject();
+         
+         //if the ball collided with the paddle 
+            if(collider == paddle)
+            {
+            //reverse the y velocity
+               dy = -dy;
+            }
+            //otherwise if the ball collided with a brick
+            else if(collider instanceof Brick) 
+            {
+            //reverse y velocity
+               dy = -dy;
+            //remove the brick
+               remove(collider);
+            }
          }
-         //otherwise if the ball collided with a brick
-         else if(collider instanceof Brick) 
-         {
-         	//reverse y velocity
-            dy = -dy;
-         	//remove the brick
-            remove(collider);
+         else{
+            add(startLabel); 
          }
       }
+      add(gameOver);
+      gameRun = false;
    }
 	
    private GObject getCollidingObject(){            // getCollidingObject -- called from the playBall method
@@ -208,6 +250,14 @@ public class Breakout_Shell extends GraphicsProgram
    }
    
    public void mouseMoved(MouseEvent e){
-      paddle.setLocation(e.getX(),HEIGHT - PADDLE_Y_OFFSET); //gets the mouses x position
+      if(gameRun)
+         paddle.setLocation(e.getX()-(PADDLE_WIDTH /2),HEIGHT - PADDLE_Y_OFFSET); //gets the mouses x position
+   }
+   public void keyPressed(KeyEvent e){
+      if(e.getKeyCode() == KeyEvent.VK_SPACE && !gameRun & lives > 0){
+         gameRun = true;
+         if(startLabel != null)
+            remove(startLabel);
+      }
    }
 }
