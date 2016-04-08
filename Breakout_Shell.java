@@ -19,8 +19,8 @@ public class Breakout_Shell extends GraphicsProgram
    private static final int PADDLE_Y_OFFSET = 30;  // offset of paddle up from the bottom
 	
   	// Brick settings
-   private static final int NBRICKS_PER_ROW = 10;  // number of bricks per row
-   private static final int NBRICK_ROWS = 10;      // number of rows of bricks
+   private static final int NBRICKS_PER_ROW = 2;  // number of bricks per row
+   private static final int NBRICK_ROWS = 1;      // number of rows of bricks
    private static final int BRICK_SEP = 4;         // separation between bricks both horizontally and vertically
    private static final int BRICK_WIDTH = WIDTH / NBRICKS_PER_ROW - BRICK_SEP;   // width of each brick (based on the display dimensions)
    private static final int BRICK_HEIGHT = 8;      // height of brick
@@ -32,22 +32,18 @@ public class Breakout_Shell extends GraphicsProgram
    // Game settings
    private static final int NTURNS = 3;            // number of turns
    
-	// Game Play variables
-                              // paddle - based on ACM GRect object
-                              // ball - based on ACM GOval object
+	// Game Play variables                       
    private double dx, dy;                          // ball displacement in both directions (x-direction, and y-direction)
    private int lives = 3;                              // number of lives left in game
    private int nBricks = NBRICKS_PER_ROW * NBRICK_ROWS;  // total number of bricks on game board at start of game
-   private int points;                             // number of points scored
-   private int toggle = 0;                         // used for mouse events (only moves the paddle every 5th mouse move)
+   private int score;                             // number of points scored
    
    // Label variables
    private GRect paddle;
    private GOval ball;
    private boolean gameRun = false;
-   private GLabel startLabel,gameOver;
-   private Font Algerian = new Font("Algerian", BOLD, 50);
-	
+   private GLabel startLabel,gameOver,lblLives,lblScore;
+   private GImage[] imgLives;	
    
    public static void main(String[] args){       // main method -- called when the program is run
       String[] sizeArgs = { "width=" + WIDTH, "height=" + HEIGHT };
@@ -58,12 +54,19 @@ public class Breakout_Shell extends GraphicsProgram
       createBricks();                           // create the bricks
       createPaddle();                           // create the paddle
       createBall();                             // create the ball
+      createLives();
       
       startLabel = new GLabel("Press Space to Start!", 30, HEIGHT/4*3);
       startLabel.setColor(Color.BLACK);
       gameOver = new GLabel("Game Over",30, HEIGHT/2);
-      gameOver.setFont(Algerian);
+      gameOver.setFont(new Font("Algerian", Font.BOLD, 50));
       gameOver.setColor(Color.RED);
+      lblScore = new GLabel("score: 0", 20, 20);
+      lblScore.setColor(Color.BLACK);
+      add(lblScore);
+      lblLives = new GLabel("lives: ",WIDTH - 100, 20);
+      lblLives.setColor(Color.BLACK);
+      add(lblLives);
       
       addMouseListeners();
       addKeyListeners();                                         // add a mouse listener
@@ -73,40 +76,59 @@ public class Breakout_Shell extends GraphicsProgram
       startTheBall();
       playBall();
    }
-		
+	
+   public void createLives(){
+      int c = 0;
+      int L = 1;
+      imgLives = new GImage[lives];
+      for(int k=0; k<imgLives.length;k++){
+         imgLives[c] = new GImage("D:\\Computer Math\\Unit 3\\Breakout\\Heart.png",WIDTH - 70 + (10 * c) ,10 * L);
+         add(imgLives[c]);
+         c++;
+         if(c >= 7){
+            c = 0;
+            L++;
+         }
+      }
+   }
+   	
    public void createBricks()                   // createBricks method -- called from the init method
    {
    	//make the bricks
       for(int r = 0; r < NBRICK_ROWS; r++){
          for(int c = 0; c < NBRICKS_PER_ROW; c++){
-            Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + r * (BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT);
-               
+            Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + r * (BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT); 
             brick.setFilled(true);
             switch(r){      
                case 0:
                case 1:
                   brick.setFillColor(Color.RED);
                   brick.setColor(Color.RED);
+                  brick.setPoints(25);
                   break;
                case 2:
                case 3:
                   brick.setFillColor(Color.ORANGE);
                   brick.setColor(Color.ORANGE);
+                  brick.setPoints(20);
                   break;
                case 4:
                case 5:
                   brick.setFillColor(Color.YELLOW);
                   brick.setColor(Color.YELLOW);
+                  brick.setPoints(15);
                   break;
                case 6:
                case 7:
                   brick.setFillColor(Color.GREEN);
                   brick.setColor(Color.GREEN);
+                  brick.setPoints(10);                  
                   break;
                case 8:
                case 9:
                   brick.setFillColor(Color.CYAN);
                   brick.setColor(Color.CYAN);
+                  brick.setPoints(5);
                   break;
             }
             add(brick); 
@@ -116,6 +138,8 @@ public class Breakout_Shell extends GraphicsProgram
 
    class Brick extends GRect{                   // Brick class -- class for all brick objects
       // add instance variables here as needed
+      private int myPoints;
+      private int myHealth;
       
       /** Constructor: a new brick with width w and height h */
       public Brick(double w, double h){
@@ -125,7 +149,20 @@ public class Breakout_Shell extends GraphicsProgram
       /** Constructor: a new brick at (x,y) with width w and height h */
       public Brick(double x, double y, double w, double h){
          super(x,y,w,h);
-      }    
+         myHealth
+      }
+      public void setPoints(int aPointValue){
+         myPoints = aPointValue;
+      }
+      public int getPoints(){
+         return myPoints;
+      }
+      public void destroy(Brick name){
+         myHealth--;
+         if(myHealth == 0){
+         remove(name);
+         }
+      }
    }
 
    public void createPaddle(){                   // createPaddle method -- called from the init method
@@ -171,6 +208,7 @@ public class Breakout_Shell extends GraphicsProgram
 	
    public void playBall(){           	      // playBall method -- called from the run method
       while( lives > 0 ){                     // game loop - play continues as long as player has lives left
+         lblScore.setLabel("Score: " + score);
          if(gameRun){
          //move the ball
             ball.move(dx, dy);
@@ -189,6 +227,9 @@ public class Breakout_Shell extends GraphicsProgram
                gameRun = false;
                paddle.setLocation((WIDTH / 2) - (PADDLE_WIDTH / 2), HEIGHT - PADDLE_Y_OFFSET);
                ball.setLocation(paddle.getX() + (PADDLE_WIDTH / 2), paddle.getY() - (BALL_RADIUS * 2) - 5);
+               if(dy < 0)
+                  dy = -dy;
+               remove(imgLives[lives]);
             }
          /**********************************************
          *
@@ -220,6 +261,8 @@ public class Breakout_Shell extends GraphicsProgram
             //otherwise if the ball collided with a brick
             else if(collider instanceof Brick) 
             {
+               Brick brick = (Brick)collider;
+               score = score + brick.getPoints();
             //reverse y velocity
                dy = -dy;
             //remove the brick
