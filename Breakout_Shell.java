@@ -30,20 +30,22 @@ public class Breakout_Shell extends GraphicsProgram
    private static final int BALL_RADIUS = 6;       // radius of ball in pixel
    
    // Game settings
-   private static final int NTURNS = 3;            // number of turns
+   private static final int NTURNS = 3;           // number of turns
+   private static final int NPOWERUPS_MAX = 10;
    
 	// Game Play variables                       
    private double dx, dy;                          // ball displacement in both directions (x-direction, and y-direction)
-   private int lives = 42;                              // number of lives left in game
+   private int lives = 5;                              // number of lives left in game
    private int nBricks = NBRICKS_PER_ROW * NBRICK_ROWS;  // total number of bricks on game board at start of game
-   private int score;                             // number of points scored
+   private int score,numPowerups,nPowerup;                             // number of points scored
    
    // Label variables
    private GRect paddle;
    private GOval ball;
    private boolean gameRun = false;
-   private GLabel startLabel,gameOver,lblLives,lblScore,gameWin,restartInstruction;
-   private GImage[] imgLives;	
+   private GLabel startLabel,gameOver,lblLives,lblScore,gameWin,restartInstruction,powerupIDer;
+   private GImage[] imgLives;
+   private powerupPebble[] pebbels;
    
    public static void main(String[] args){       // main method -- called when the program is run
       String[] sizeArgs = { "width=" + WIDTH, "height=" + HEIGHT };
@@ -72,12 +74,16 @@ public class Breakout_Shell extends GraphicsProgram
       add(lblLives);
       restartInstruction = new GLabel("If you would like to play again press R!", 30, HEIGHT/2 +100);
       restartInstruction.setColor(Color.BLACK);
+      powerupIDer = new GLabel("",20,HEIGHT - 10);
+      powerupIDer.setColor(Color.GREEN.darker());
+      
+      pebbels = new powerupPebble[NPOWERUPS_MAX];
       
       addMouseListeners();
-      addKeyListeners();                                         // add a mouse listener
+      addKeyListeners();                                      
    }
    
-   public void run(){                            // run method -- automatically called after init
+   public void run(){                           
       startTheBall();
       playBall();
    }
@@ -85,21 +91,23 @@ public class Breakout_Shell extends GraphicsProgram
    public void createLives(){
       int c = 0;
       int L = 1;
-      imgLives = new GImage[lives];
+      imgLives = new GImage[42];
       for(int k=0; k<imgLives.length;k++){
-         imgLives[c] = new GImage("D:\\Computer Math\\Unit 3\\Breakout\\Heart.png",WIDTH - 70 + (10 * c) ,10 * L);
-         add(imgLives[c]);
+         imgLives[k] = new GImage("D:\\Computer Math\\Unit 3\\Breakout\\Heart.png",WIDTH - 70 + (10 * c) ,10 * L);
          c++;
          if(c >= 7){
             c = 0;
             L++;
          }
       }
+      for(int k=0;k<lives;k++){
+         add(imgLives[k]);
+      }
    }
    	
-   public void createBricks()                   // createBricks method -- called from the init method
-   {
-   	//make the bricks
+   public void createBricks(){
+      numPowerups = 0;
+      //make the bricks
       for(int r = 0; r < NBRICK_ROWS; r++){
          for(int c = 0; c < NBRICKS_PER_ROW; c++){
             Brick brick = new Brick(BRICK_SEP + c * (BRICK_WIDTH + BRICK_SEP), BRICK_Y_OFFSET + r * (BRICK_SEP + BRICK_HEIGHT), BRICK_WIDTH, BRICK_HEIGHT); 
@@ -141,31 +149,46 @@ public class Breakout_Shell extends GraphicsProgram
       }
    }
 
-   class Brick extends GRect{                   // Brick class -- class for all brick objects
-      // add instance variables here as needed
+   class Brick extends GRect{                   // Brick class
       private int myPoints;
       private int myHealth;
+      private boolean isPowerup;
       
-      /** Constructor: a new brick with width w and height h */
       public Brick(double w, double h){
          super(w,h);
-         if(Math.random() < 0.85){
+         if(Math.random() < 0.94 && numPowerups <= NPOWERUPS_MAX){
+            numPowerups++;
+            isPowerup = true;
             myHealth = 1;
          }
          else{
-            myHealth = 2;
-         } 
+            if(Math.random() < 0.85){
+               myHealth = 1;
+            }
+            else{
+               myHealth = 2;
+            }
+            isPowerup = false;
+         }
       }
     
       /** Constructor: a new brick at (x,y) with width w and height h */
       public Brick(double x, double y, double w, double h){
          super(x,y,w,h);
-         if(Math.random() < 0.85){
+         if(/*Math.random() < 0.94 && numPowerups <= 10*/ true){
+            numPowerups++;
+            isPowerup = true;
             myHealth = 1;
          }
          else{
-            myHealth = 2;
-         }         
+            if(Math.random() < 0.85){
+               myHealth = 1;
+            }
+            else{
+               myHealth = 2;
+            }
+            isPowerup = false;
+         }        
       }
       public void setPoints(int aPointValue){
          myPoints = aPointValue;
@@ -176,11 +199,56 @@ public class Breakout_Shell extends GraphicsProgram
       public void destroy(Brick name){
          myHealth--;
          setFillColor(getFillColor().darker());
-         if(myHealth <= 0){
-            remove(name);
-            nBricks--;
+         if(isPowerup){
+            remove(name);  
+         }
+         else{
+            if(myHealth <= 0){
+               remove(name);
+            }
          }
       }
+      public boolean checkPowerup(){
+         return isPowerup;
+      }
+   }
+   class powerupPebble extends GOval{
+      private int dy = 1;
+      public powerupPebble(double x,double y){
+         super(x,y,5,5);
+         setColor(Color.RED);
+         setFillColor(Color.RED);
+      }
+      public void move(powerupPebble name){
+         setLocation(getX(),getY() - dy);
+         if(getY() <= HEIGHT - PADDLE_Y_OFFSET + PADDLE_HEIGHT){
+            remove(name);
+         }
+      }
+      public void pickup(){
+         double chance = Math.random();
+         if(chance >= 0.05){
+            powerupIDer.setLabel("Your Score Has Been Doubled!");
+            pause(100);
+            powerupIDer.setLabel("");
+            score = score * 2;
+         }
+         else if(chance >= 0.15){
+            powerupIDer.setLabel("Your have gained an extra life!");
+            pause(100);
+            powerupIDer.setLabel("");
+            if(lives < 42){
+               lives++;
+               add(imgLives[lives]);            
+            }
+         }
+         else if(chance >= 0.20){
+            powerupIDer.setLabel("Your Speed has incressed for 10 seconds");
+            pause(100);
+            powerupIDer.setLabel("");
+            dx = dx * 2;
+         }
+     }
    }
 
    public void createPaddle(){                   // createPaddle method -- called from the init method
@@ -249,23 +317,9 @@ public class Breakout_Shell extends GraphicsProgram
                   dy = -dy;
                remove(imgLives[lives]);
             }
-         /**********************************************
-         *
-         * if ball contacts the ceiling,	  
-         * reverse the y velocity 				      
-         *                      				      
-         * otherwise, if ball contacts the left wall, 
-         * reverse the x velocity 				      
-         *                      				      
-         * otherwise, if ball contacts the right wall,
-         * reverse the x velocity 				      
-         * 
-         * otherwise, if ball gets past the paddle,
-         * turn is over; either go on to next turn or
-         * end game if there are no lives left 				      
-         *           				      
-         **********************************************/
-         
+            for(int k=0;k<=lives;k++){
+            
+            }
          
          //check for collisions with bricks or paddle
             GObject collider = getCollidingObject();
@@ -281,20 +335,29 @@ public class Breakout_Shell extends GraphicsProgram
             {
                Brick brick = (Brick)collider;
                score = score + brick.getPoints();
+               if(brick.checkPowerup()){
+                  pebbels[nPowerup] = new powerupPebble(brick.getX(),brick.getY());
+                  nPowerup++;
+               }
             //reverse y velocity
              
-             dy = -dy;
+               dy = -dy;
             //remove the brick
                brick.destroy(brick);
+               nBricks--;
             }
-            if(nBricks <= 0){
+            if(nBricks <= 0){ //checks for win
                gameRun = false;
                lives = 0;
                add(gameOver);
                add(gameWin);
+               remove(ball);
                pause(3000);
                add(restartInstruction);
-                
+            }
+            for(int k = 0;k <= nPowerup; k++){
+               if(pebbels[k] != null)
+                  pebbels[k].move(pebbels[k]);
             }
          }
          else{
@@ -330,13 +393,13 @@ public class Breakout_Shell extends GraphicsProgram
          if(startLabel != null)
             remove(startLabel);
       }
-      else if(e.getKeyCode() == KeyEvent.VK_R){
+      /*else if(e.getKeyCopde() == KeyEvent.VK_R){
       }
       else if(e.getKeyCode() == KeyEvent.VK_P){
          if(gameRun)
             gameRun = false;
          else
             gameRun = true;
-      }
+      }*/
    }
 }
