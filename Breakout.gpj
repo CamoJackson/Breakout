@@ -11,8 +11,8 @@ s#i0
 s#k0
 s#j0
 s#l0
-!134;u
-a0	b4	c255	d%\\011background.jpg\011%\\011bounce.wav\011%\\011Heart.png	f%\011Breakout.jar	g%\011Breakout.zip	hManifest-Version\0111.0!101;g
+!183;u
+a0	b4	c255	d%\\011acm.jar\011%\\011background.jpg\011%\\011bounce.wav\011%\\011Heart.png	f%\011Breakout.jar	g%\011Breakout.zip	hManifest-Version\0111.0\011Main-Class\011Breakout_Shell!101;g
 %\011License.txt
 %\011Heart.png
 %\011acm.jar
